@@ -86,3 +86,38 @@ async def info(interaction: Interaction):
     view.add_item(d_button)
 
     await interaction.response.send_message(embed=em, view=view)
+
+    @bot.tree.command(description="Summarize a YouTube video")
+@app_commands.describe(url="YouTube video URL")
+async def summarize(interaction: Interaction, url: str):
+    yt = YouTube(url)
+    stream = yt.streams.filter().first()
+    out_file = stream.download()
+
+    base, ext = os.path.splitext(out_file)
+    new_file = base + '.mp3'
+    os.rename(out_file, new_file)
+
+    audio_file = open(new_file, "rb")
+    transcript = openai.Audio.transcribe("whisper-1", audio_file)
+    new_t = transcript["text"]
+
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[{
+            "role":
+                "assistant",
+            "content":
+                f"Your output should use the following template:\n**Summary**\n**Highlights**\n- [Emoji] Bulletpoint\n\nYour task is to summarise the text I have given you in up to seven concise bullet points, starting with a short highlight. Choose an appropriate emoji for each bullet point. Use the text above: {yt.title} {new_t}."
+        }])
+
+    embed = Embed(title=f"{yt.title}",
+                  description=response['choices'][0]['message']['content'],
+                  color=0x070D0D,
+                  url=url)
+
+    embed.set_footer(text="!summarize [url] for YouTube video summary")
+
+    await interaction.response.send_message(interaction.user.mention, embed=embed)
+
+    os.remove(new_file)
