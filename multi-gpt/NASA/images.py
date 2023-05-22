@@ -28,3 +28,21 @@ class APOD:
             raise ValueError(f"{start_date} is not a valid date. Date must be in the format YYYY-MM-DD.")
         if end_date is not None and not is_valid_date(end_date):
             raise ValueError(f"{end_date} is not a valid date. Date must be in the format YYYY-MM-DD.")
+            
+        if start_date is not None and end_date is not None:
+
+            url = f"https://api.nasa.gov/planetary/apod?start_date={start_date}&end_date={end_date}&api_key={self.api_key}"
+
+            response = requests.get(url=url)
+
+            if response.status_code == 400:
+                print("Your API_KEY is invalid. Obtain a new one from https://api.nasa.gov/")
+                raise response.raise_for_status()
+
+            elif response.status_code == 500:
+                print("Looks like NASA's API is down. Please try again later.")
+                raise response.raise_for_status
+
+            data = json.loads(response.text)
+
+            return data[0]["hdurl"]
