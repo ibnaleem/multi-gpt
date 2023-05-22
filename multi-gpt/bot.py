@@ -11,6 +11,65 @@ from NASA.images import *
 
 chat_log = []
 
+def generate_symbol_passwords(characters, limit=1):
+    symbols = string.punctuation
+    if 5 >= limit > 1 and 26 >= characters > 4:
+        passwords = []
+
+        for _ in range(limit):
+            pswd = ''.join(random.choice(symbols) for _ in range(characters))  # Generating an 8-character password
+            passwords.append(pswd)
+
+        return passwords
+
+    if limit == 1 and characters == 4:
+        pswd = ''.join(random.choice(symbols) for _ in range(4))
+
+        return pswd
+
+    else:
+        return []
+
+
+def generate_numbers_passwords(characters, limit=1):
+    digits = string.digits
+    if 5 >= limit > 1 and 26 >= characters > 4:
+        passwords = []
+
+        for _ in range(limit):
+            pswd = ''.join(random.choice(digits) for _ in range(characters))  # Generating an 8-character password
+            passwords.append(pswd)
+
+        return passwords
+
+    if limit == 1 and characters == 4:
+        pswd = ''.join(random.choice(digits) for _ in range(4))
+
+        return pswd
+
+    else:
+        return []
+
+def generate_str_passwords(characters, limit=1):
+    strs = string.ascii_letters
+    if 5 >= limit > 1 and 26 >= characters > 4:
+        passwords = []
+
+        for _ in range(limit):
+            pswd = ''.join(random.choice(strs) for _ in range(characters))  # Generating an 8-character password
+            passwords.append(pswd)
+
+        return passwords
+
+    if limit == 1 and characters == 4:
+        pswd = ''.join(random.choice(strs) for _ in range(4))
+
+        return pswd
+
+    else:
+        return []
+
+
 with open('config.json') as f:
     config = json.load(f)
 
@@ -247,3 +306,85 @@ async def epic(interaction: Interaction, date: str, natural: Optional[bool] = No
 
         await interaction.response.send_message(
             "You have provided an invalid `date`. Dates must be in the `YYYY-MM-DD` format. Example: 2023-05-13")
+        
+@bot.tree.command(description="Privately generate password(s)")
+@app_commands.describe(letters="Do you want letters in your password(s)?", numbers="Do you want numbers in your password(s)", symbols="Do you want symbols in your password(s)", characters="How many characters in your password(s) (Max 26)", limit="How many passwords do you want to generate? (max. 5)")
+async def password(interaction: Interaction, letters: Optional[bool]=None, numbers: Optional[bool]=None, symbols: Optional[bool]=None, characters: Optional[int]=16, limit: Optional[int]=1):
+    author = interaction.user
+
+    if letters and numbers and symbols is None:
+        await interaction.response.send_message(f"{author.mention} At least `letters`, `numbers` or `symbols` must be set to `True`")
+
+    if 4 > characters:
+        await interaction.response.send_message(f"{author.mention} minimum password characters: `4`")
+
+    if letters and numbers is None and symbols is True:
+        if 5 >= limit > 1 and 26 >= characters > 4:
+            pswds = generate_symbol_passwords(limit, characters)
+            embed=Embed(title=f"PASSWORDS", description="\n\n".join(pswd for pswd in pswds), color=0x0a0000)
+
+            await interaction.response.send_message(author.mention, embed=embed, ephemeral=True)
+
+        if limit == 1 and characters == 4:
+            pswd = generate_symbol_passwords(limit, characters)
+            embed = Embed(title=f"PASSWORDS", description=pswd, color=0x0a0000)
+
+
+    if symbols and numbers is None and letters is True:
+        if 5 >= limit > 1 and 26 >= characters > 4:
+            pswds = generate_str_passwords(limit, characters)
+            embed = Embed(title=f"PASSWORDS", description="\n\n".join(pswd for pswd in pswds), color=0x0a0000)
+
+            await interaction.response.send_message(author.mention, embed=embed, ephemeral=True)
+
+        if limit == 1 and characters == 4:
+            pswd = generate_str_passwords(characters, limit=1)
+            embed = Embed(title=f"PASSWORDS", description=pswd, color=0x0a0000)
+            await interaction.response.send_message(author.mention, embed=embed, ephemeral=True)
+
+    if symbols and letters is None and numbers is True:
+        if 5 >= limit > 1 and 26 >= characters > 4:
+            pswds = generate_numbers_passwords(limit, characters)
+            embed = Embed(title=f"PASSWORDS", description="\n\n".join(pswd for pswd in pswds), color=0x0a0000)
+
+            await interaction.response.send_message(author.mention, embed=embed, ephemeral=True)
+
+        if limit == 1 and characters == 4:
+            pswd = generate_numbers_passwords(characters, limit=1)
+            embed = Embed(title=f"PASSWORDS", description=pswd, color=0x0a0000)
+            await interaction.response.send_message(author.mention, embed=embed, ephemeral=True)
+
+    if letters and numbers and symbols:
+        if 5 >= limit > 1 and 26 >= characters > 4:
+            pswds_nums = generate_numbers_passwords(limit, characters)
+            pswds_strs = generate_str_passwords(limit, characters)
+            pswds_sym = generate_symbol_passwords(limit, characters)
+
+            all_passwords = pswds_nums + pswds_strs + pswds_sym
+
+            final_passwords = []
+            for _ in range(limit):
+                shuffled_passwords = all_passwords.copy()
+                random.shuffle(shuffled_passwords)
+                final_password = ''.join(shuffled_passwords)
+                final_passwords.append(final_password)
+
+            embed = Embed(title=f"PASSWORDS", description='\n\n'.join(pswd for pswd in final_passwords), color=0x0a0000)
+
+            await interaction.response.send_message(author.mention, embed=embed, ephemeral=True)
+
+        if limit == 1 and characters == 4:
+            pswds_nums = generate_numbers_passwords(characters, limit=1)
+            pswds_strs = generate_str_passwords(characters, limit=1)
+            pswds_sym = generate_symbol_passwords(characters, limit=1)
+
+            joined_passwords = pswds_nums + pswds_strs + pswds_sym
+            random.shuffle(joined_passwords)
+            final_password = ''.join(joined_passwords)
+
+            embed = Embed(title=f"PASSWORDS", description=final_password, color=0x0a0000)
+
+            await interaction.response.send_message(author.mention, embed=embed, ephemeral=True)
+
+
+bot.run(TOKEN)
