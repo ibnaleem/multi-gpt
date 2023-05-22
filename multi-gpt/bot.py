@@ -62,3 +62,27 @@ async def on_message(message):
                 num -= 1
                 if num == 0:
                     break
+                    
+                   
+@bot.tree.command(description="Information About Me")
+async def info(interaction: Interaction):
+    em = Embed(title="MultiGPT's Info",
+               description="MultiGPT is a Discord bot that offers additional ChatGPT-functionality through various commands, including the ability to \"humanize\" AI-generated text using the `!humanize (text)` command, and summarize YouTube videos with the `!summarize (url)` command. DM MultiGPT to start a new GPT-conversation! Use `!help` for a list of commands.",
+               color=0x070D0D)
+    em.add_field(name="Developed by", value="<@1046920598359638036>", inline=True)
+    em.add_field(name="Developed in", value="[discord.py](https://github.com/Rapptz/discord.py)", inline=True)
+    em.add_field(name="GPT Version", value="GPT-3.5", inline=True)
+    em.add_field(name="Number of Servers", value=len(bot.guilds), inline=True)
+    em.add_field(name="Prefix", value="/", inline=True)
+
+    button = Button(label="Invite Me", style=discord.ButtonStyle.blurple, emoji="<:logo:1085592985296715796>",
+                    url="https://discord.com/api/oauth2/authorize?client_id=1085276371003129937&permissions=1099242667841&scope=bot")
+    s_button = Button(label="Support Server", emoji="🛠️", url="https://discord.gg/XBRZwptq6P")
+    d_button = Button(label="Donate", emoji='<:pp:1085955313020186724>', url='https://paypal.me/YxngZayn')
+
+    view = View()
+    view.add_item(button)
+    view.add_item(s_button)
+    view.add_item(d_button)
+
+    await interaction.response.send_message(embed=em, view=view)
