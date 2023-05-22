@@ -29,3 +29,36 @@ async def on_ready():
         print(f"Synced {len(synced)} commands!")
     except Exception as e:
         print(e)
+
+# Access the value of TOKEN
+KEY = config['API_KEY']
+
+# Setting API Key for OpenAI
+openai.api_key = KEY
+
+
+@bot.event
+async def on_message(message):
+    if message.author == bot.user:
+        pass
+    elif message.content.startswith("!"):
+        pass
+    else:
+        if isinstance(message.channel, discord.DMChannel):
+            num = 1
+            while num != 0:
+                chat_log.append({"role": "user", "content": message.content})
+
+                response = openai.ChatCompletion.create(
+                    model="gpt-3.5-turbo",
+                    messages=chat_log
+                )
+
+                gpt_response = response["choices"][0]["message"]["content"]
+
+                chat_log.append({"role": "assistant", "content": gpt_response})
+
+                await message.channel.send(response["choices"][0]["message"]["content"])
+                num -= 1
+                if num == 0:
+                    break
