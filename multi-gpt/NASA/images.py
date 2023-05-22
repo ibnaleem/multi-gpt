@@ -18,3 +18,13 @@ class APOD:
             raise ValueError(
                 "You must provide both the start_date and end_date but you only provided one of them. Either leave "
                 "both blank, provide both dates, or provide a date value.")
+            
+        if date and start_date and end_date:
+            raise ValueError("Too many arguments. Either provide a single date, or provide a start_date and end_date.")
+
+        if date is not None and not is_valid_date(date):
+            raise ValueError(f"{date} is not a valid date. Date must be in the format YYYY-MM-DD.")
+        if start_date is not None and not is_valid_date(start_date):
+            raise ValueError(f"{start_date} is not a valid date. Date must be in the format YYYY-MM-DD.")
+        if end_date is not None and not is_valid_date(end_date):
+            raise ValueError(f"{end_date} is not a valid date. Date must be in the format YYYY-MM-DD.")
