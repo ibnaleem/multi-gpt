@@ -121,3 +121,33 @@ async def summarize(interaction: Interaction, url: str):
     await interaction.response.send_message(interaction.user.mention, embed=embed)
 
     os.remove(new_file)
+
+    
+@bot.tree.command(description="YouTube video transcription (subtitles)")
+@app_commands.describe(url="YouTube video URL")
+async def transcript(interaction: Interaction, url: str):
+    yt = YouTube(url)
+    stream = yt.streams.filter().first()
+    out_file = stream.download()
+
+    base, ext = os.path.splitext(out_file)
+    new_file = base + '.mp3'
+    os.rename(out_file, new_file)
+
+    audio_file = open(new_file, "rb")
+    trans = openai.Audio.transcribe("whisper-1", audio_file)
+
+    filename = f"transcript-{uuid.uuid4()}.txt"
+    with open(filename, "w") as j:
+        j.write(trans["text"])
+        j.close()
+
+    with open(filename, 'r') as j:
+        file = discord.File(j)
+        await interaction.response.send_message(
+            f"{interaction.user.mention} Here's the transcription for the YouTube video you provided: ",
+            file=file)
+
+        j.close()
+        os.remove(new_file)
+        os.remove(filename)
