@@ -177,3 +177,27 @@ async def translate(interaction: Interaction, text: str, to_lang: Optional[str] 
 
     result = ts.google(text, to_language="en")
     await interaction.response.send_message(result)
+
+    
+  
+@bot.tree.command(description="Astronomy Picture of the Day")
+@app_commands.describe(date="The date of the APOD image to retrieve (YYYY-MM-DD)")
+async def apod(interaction: Interaction, date: Optional[str] = None):
+    # start_date and end_date are not working with NASA's API
+    if date is not None:
+        try:
+            apod_client = APOD(api_key="ONFzYdMpIcH4xtgr6i2xEe6SWYeHACJtAjKyYWvC")
+            url = apod_client.generate(date=date)
+            embed = Embed(color=0x0a0000)
+            embed.set_image(url=url)
+            await interaction.response.send_message(embed=embed)
+        except:
+            await interaction.response.send_message(
+                f"{date} is not a valid date. Dates must be in the format YYYY-MM-DD.")
+    else:
+        apod_client = APOD(api_key="ONFzYdMpIcH4xtgr6i2xEe6SWYeHACJtAjKyYWvC")
+        url = apod_client.generate()
+        embed = Embed(color=0x0a0000)
+        embed.set_image(url=url)
+        await interaction.response.send_message(embed=embed)
+        
