@@ -63,3 +63,19 @@ class APOD:
 
             data = json.loads(response.text)
             return data["hdurl"]
+        
+        else:
+            url = f"https://api.nasa.gov/planetary/apod?api_key={self.api_key}"
+
+            response = requests.get(url=url)
+
+            if response.status_code == 400:
+                print("Your api_key is invalid. Obtain a new one from https://api.nasa.gov/")
+                raise response.raise_for_status()
+
+            elif response.status_code == 500:
+                print("Looks like NASA's API is down. Please try again later.")
+                raise response.raise_for_status
+
+            data = json.loads(response.text)
+            return data["hdurl"]
