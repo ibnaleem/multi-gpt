@@ -151,3 +151,14 @@ async def transcript(interaction: Interaction, url: str):
         j.close()
         os.remove(new_file)
         os.remove(filename)
+
+        
+@bot.tree.command(description="Image Generation using DALLE2")
+@app_commands.describe(prompt="What do you want to generate?")
+async def dalle2(interaction: Interaction, prompt: str):
+    response = openai.Image.create(prompt=prompt, n=1, size="1024x1024")
+    embed = Embed(description=f'"*{prompt}*"', color=0x070D0D)
+    embed.set_image(url=response['data'][0]['url'])
+    embed.set_footer(text="/dalle2 to generate images")
+
+    await interaction.response.send_message(interaction.user.mention, embed=embed)
