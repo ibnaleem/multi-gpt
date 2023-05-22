@@ -201,3 +201,49 @@ async def apod(interaction: Interaction, date: Optional[str] = None):
         embed.set_image(url=url)
         await interaction.response.send_message(embed=embed)
         
+@bot.tree.command(
+    description="Daily imagery collected by DSCOVR's Earth Polychromatic Imaging Camera (EPIC)")
+@app_commands.describe(natural="Most Recent Natural Color", enhanced="Most Recent Enhanced Color", date="Date of Image")
+async def epic(interaction: Interaction, date: str, natural: Optional[bool] = None, enhanced: Optional[bool] = None):
+    # NASA's API does not return the image for certain parameters (for example enhanced)
+    if natural and enhanced:
+        await interaction.response.send_message("You can only choose one: `natural` or `enhanced`.")
+
+    if date and not natural or not enhanced or date and natural:
+        try:
+            epic_client = EPIC(api_key="ONFzYdMpIcH4xtgr6i2xEe6SWYeHACJtAjKyYWvC")
+            img = epic_client.generate(date=date)
+            embed = Embed(color=0x0a0000)
+            embed.set_image(url=img)
+
+            await interaction.response.send_message(embed=embed)
+
+        except:
+            await interaction.response.send_message(
+                "You have provided an invalid `date`. Dates must be in the `YYYY-MM-DD` format. Example: 2023-05-13")
+
+    if date and enhanced:
+        try:
+            epic_client = EPIC(api_key="ONFzYdMpIcH4xtgr6i2xEe6SWYeHACJtAjKyYWvC")
+            img = epic_client.generate(date=date, enhanced=True)
+            embed = Embed(color=0x0a0000)
+            embed.set_image(url=img)
+
+            await interaction.response.send_message(embed=embed)
+
+        except:
+            await interaction.response.send_message(
+                "You have provided an invalid `date`. Dates must be in the `YYYY-MM-DD` format. Example: 2023-05-13")
+
+    try:
+        epic_client = EPIC(api_key="ONFzYdMpIcH4xtgr6i2xEe6SWYeHACJtAjKyYWvC")
+        img = epic_client.generate()
+        embed = Embed(color=0x0a0000)
+        embed.set_image(url=img)
+
+        await interaction.response.send_message(embed=embed)
+
+    except:
+
+        await interaction.response.send_message(
+            "You have provided an invalid `date`. Dates must be in the `YYYY-MM-DD` format. Example: 2023-05-13")
