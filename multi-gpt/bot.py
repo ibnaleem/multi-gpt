@@ -87,7 +87,7 @@ async def info(interaction: Interaction):
 
     await interaction.response.send_message(embed=em, view=view)
 
-    @bot.tree.command(description="Summarize a YouTube video")
+@bot.tree.command(description="Summarize a YouTube video")
 @app_commands.describe(url="YouTube video URL")
 async def summarize(interaction: Interaction, url: str):
     yt = YouTube(url)
