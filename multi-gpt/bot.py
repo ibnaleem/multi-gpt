@@ -162,3 +162,18 @@ async def dalle2(interaction: Interaction, prompt: str):
     embed.set_footer(text="/dalle2 to generate images")
 
     await interaction.response.send_message(interaction.user.mention, embed=embed)
+
+    
+@bot.tree.command(description="Translate any language")
+@app_commands.describe(text="Text to translate", to_lang="The language to translate to")
+async def translate(interaction: Interaction, text: str, to_lang: Optional[str] = None):
+    if to_lang:
+        try:
+            result = ts.google(text, to_language=to_lang)
+            await interaction.response.send_message(result)
+        except:
+            await interaction.response.send_message(
+                "That is not a valid language. Provide a langauge code (ex. en for English)")
+
+    result = ts.google(text, to_language="en")
+    await interaction.response.send_message(result)
